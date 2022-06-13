@@ -1,0 +1,39 @@
+version: "2"
+services:
+  envoy:
+    image: envoyproxy/envoy-dev
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
+    networks:
+      - dvwallet
+    ports:
+      - 9901:9901
+      - 8085:8085
+  kyc:
+    build:
+      context: ./DVWallet-KYC
+      args:
+        GITHUB_USER: ${GITHUB_USER}
+        GITHUB_PASS: ${GITHUB_PASS}
+    container_name: kyc
+    restart: on-failure
+    volumes:
+      - ./DVWallet-KYC/:/DVWallet-KYC/node_modules/
+    networks:
+      - dvwallet
+  wallet:
+    build: 
+      context: ./DVWallet-Wallet
+      args:
+        GITHUB_USER: ${GITHUB_USER}
+        GITHUB_PASS: ${GITHUB_PASS}
+    container_name: wallet
+    restart: on-failure
+    volumes:
+      - ./DVWallet-Wallet:/DVWallet-Wallet/node_modules
+    networks:
+      - dvwallet
+    ports:
+     - 8080:8080
+networks:
+  dvwallet:
